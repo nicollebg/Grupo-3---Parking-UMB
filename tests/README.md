@@ -1,12 +1,22 @@
 # Pruebas del sistema
 
-En esta carpeta se almacenarán las pruebas utilizadas para verificar el funcionamiento de los diferentes módulos del Sistema de Gestión de Parqueadero.
+Pruebas automatizadas con `unittest` (biblioteca estándar de Python, no requiere instalar nada).
 
-## Pruebas iniciales propuestas
+## Cómo ejecutarlas
 
-- Verificar el registro correcto de un vehículo.
-- Comprobar que no se supere la capacidad del parqueadero.
-- Verificar el cálculo de espacios disponibles.
-- Comprobar la visualización de los vehículos registrados.
+Desde la raíz del repositorio:
 
-Las pruebas se implementarán progresivamente durante el desarrollo del proyecto.
+```bash
+python -m unittest discover -s tests -v
+```
+
+## Qué se verifica
+
+| Archivo | Qué comprueba |
+|---|---|
+| `test_tarifas.py` | Estrategias de cobro del patrón Strategy: por hora o fracción, tarifa plana y valores por tipo de vehículo. |
+| `test_parqueadero.py` | Registro de entradas y salidas, capacidad máxima, placas duplicadas, cobro y recaudo, e inyección de otra estrategia. |
+| `test_validaciones.py` | Normalización y validación de placa y tipo, y creación del `Vehiculo`. |
+| `test_menu.py` | Integración del menú de consola con el servicio, incluido el manejo de errores. |
+
+`contexto.py` solo agrega `src/` al path para que las pruebas puedan importar los paquetes del proyecto.

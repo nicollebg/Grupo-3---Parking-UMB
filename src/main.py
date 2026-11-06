@@ -1,7 +1,7 @@
 
-from modules.vehiculo import Vehiculo
-from modules.parqueadero import Parqueadero
-from modules.registro import mostrar_vehiculos
+from modelos.vehiculo import Vehiculo
+from modelos.registro import mostrar_vehiculos
+from servicios.parqueadero import Parqueadero
 
 
 def iniciar_sistema():

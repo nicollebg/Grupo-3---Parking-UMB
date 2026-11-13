@@ -1,5 +1,7 @@
 
-"""Implementacion del patron Observer."""
+"""Implementacion del patron Observer.
+    Se usa para pder notificar cuando ocurre un evento importsnte
+    con el ingreso o a la salida de alguhn vehiculo"""
 
 from abc import ABC, abstractmethod
 

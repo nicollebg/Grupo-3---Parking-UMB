@@ -1,5 +1,10 @@
 
-"""Implementacion de Factory Method para crear vehiculos."""
+"""Implementacion de Factory Method para crear vehiculos.
+    Se utiliza para centralizar la creación de vehículos. 
+    En lugar de crear directamentre los objetos desde el menu, 
+    se usa fabrica que identifica que tipo de vehiculo se quiere
+    registrar y utiliza el creador correspondiente.
+    """
 
 from abc import ABC, abstractmethod
 

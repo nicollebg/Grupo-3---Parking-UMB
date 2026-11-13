@@ -150,3 +150,27 @@ El proyecto incluye validaciones, manejo de errores y pruebas automatizadas.
 - Agregar nuevas estrategias de tarifa (nocturna, por convenio, mensualidad).
 - Asignar espacios numerados y reportes por fecha.
 - Evaluar una interfaz gráfica o web.
+- Pruebas unitarias con patrones aplicados y pruebas automáticas con valores para su correcto funcionamiento.
+
+## Versión final (Guía 6)
+
+**PRUEBAS UNITARIAS Y AUTOMATICAS:** programa de consola en Python que registra entradas y salidas, controla los espacios, calcula el cobro según el tipo de vehículo y avisa cada evento, con 48 pruebas automáticas aprobadas.
+
+### Patrones aplicados
+| Patrón | Para qué sirve | Dónde se usa |
+|---|---|---|
+| Strategy | Cada tipo de vehículo calcula su propio cobro | `Parqueadero.registrar_salida` |
+| Factory Method | Crear el vehículo correcto sin que el menú sepa cómo | Menú, al registrar una entrada |
+| Observer | Notificar entradas y salidas sin acoplar el servicio a la pantalla | `main.py` suscribe el observador al iniciar |
+
+### Buenas prácticas
+Separación por carpetas, inyección de dependencias, excepciones propias, validación de datos, pruebas con `unittest` y commits claros.
+
+### Cómo ejecutar
+```bash
+python src/main.py
+python -m unittest discover -s tests -v
+```
+
+### EVIDENCIAS Y PRUEBAS.
+Ver [EVIDENCIAS.md](EVIDENCIAS.md) y la documentación en `documentacion/`.

@@ -27,6 +27,9 @@ En algunos parqueaderos, el control de los vehículos y de la disponibilidad se 
 - Historial de salidas y total recaudado.
 - Validaciones: formato de placa, tipo permitido, placas duplicadas, parqueadero lleno y vehículo inexistente.
 - Manejo de errores con excepciones propias y mensajes claros en el menú, sin que el programa se cierre.
+- Creación de vehículos mediante el patrón Factory Method.
+- Notificaciones automáticas de entradas y salidas mediante Observer.
+- Actualización de la disponibilidad después de cada evento.
 
 ## 6. Tecnologías utilizadas
 
@@ -42,20 +45,25 @@ En algunos parqueaderos, el control de los vehículos y de la disponibilidad se 
 Grupo-3---Parking-UMB/
 ├── README.md
 ├── .gitignore
-├── src/
-│   ├── main.py                  # punto de entrada
-│   ├── componentes/
-│   │   └── menu.py              # menú de consola (presentación)
-│   ├── modelos/
-│   │   ├── vehiculo.py          # Vehiculo (datos validados)
-│   │   └── registro.py          # RegistroParqueo (estadía de un vehículo)
-│   ├── servicios/
-│   │   ├── parqueadero.py       # lógica del parqueadero (contexto del patrón)
-│   │   └── tarifas.py           # estrategias de cobro (patrón Strategy)
-│   └── utilidades/
-│       ├── excepciones.py       # excepciones propias
-│       └── validaciones.py      # validación y normalización de datos
-├── tests/                       # pruebas automatizadas (ver tests/README.md)
+src/
+├── main.py
+├── componentes/
+│   └── menu.py
+├── fabricas/
+│   ├── __init__.py
+│   └── vehiculo_factory.py
+├── modelos/
+│   ├── vehiculo.py
+│   └── registro.py
+├── observadores/
+│   ├── __init__.py
+│   └── observador_parqueadero.py
+├── servicios/
+│   ├── parqueadero.py
+│   └── tarifas.py
+└── utilidades/
+    ├── excepciones.py
+    └── validaciones.py
 └── documentacion/
     ├── patrones/patron_strategy.md
     └── diagramas/diagrama_strategy.md
@@ -75,6 +83,27 @@ Grupo-3---Parking-UMB/
 | carro | `TarifaPorHora` | $3.000 por hora o fracción |
 | moto | `TarifaPorHora` | $1.500 por hora o fracción |
 | bicicleta | `TarifaPlana` | $1.000 |
+
+### Patrón Factory Method
+
+- Problema: la creación de vehículos estaba directamente relacionada con el menú.
+- Aplicación: se implementaron creadores especializados para carros, motos y bicicletas.
+- Componentes: CreadorVehiculo, CreadorCarro, CreadorMoto,
+  CreadorBicicleta y FabricaVehiculos.
+- Beneficios: centraliza la creación de objetos y reduce el acoplamiento.
+- Ubicación: src/fabricas/vehiculo_factory.py.
+
+### Patrón Observer
+
+- Problema: era necesario comunicar los eventos de entrada y salida
+  sin mezclar las notificaciones con toda la lógica del parqueadero.
+- Aplicación: el parqueadero notifica automáticamente a los observadores
+  cuando se registra una entrada o salida.
+- Componentes: Parqueadero, ObservadorParqueadero y ObservadorConsola.
+- Beneficios: facilita la comunicación entre componentes y permite
+  agregar nuevos observadores.
+- Ubicación: src/observadores/observador_parqueadero.py.
+
 
 ### Otras decisiones
 
@@ -105,9 +134,15 @@ python -m unittest discover -s tests -v
 - Nicolas Acevedo
 - Alejandro Olaya
 
-## 11. Estado actual del proyecto
+## Estado actual del proyecto
 
-Segunda entrega: el sistema funciona de principio a fin por consola (entradas, salidas, cobro e historial), con el patrón Strategy implementado, 34 pruebas automatizadas que pasan y la documentación técnica dentro del repositorio.
+El sistema cuenta con tres patrones de diseño implementados e integrados:
+
+- Strategy: cálculo de tarifas según el tipo de vehículo.
+- Factory Method: creación organizada de vehículos.
+- Observer: notificaciones automáticas de eventos de entrada y salida.
+
+El proyecto incluye validaciones, manejo de errores y pruebas automatizadas.
 
 ## 12. Próximos avances
 

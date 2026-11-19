@@ -2,7 +2,7 @@
 
 ## 1. Descripción del proyecto
 
-Sistema de software desarrollado en Python, con menú de consolta e interfaz para administrar un parqueadero: registra el ingreso y la salida de vehículos, controla los espacios disponibles, calcula el valor a cobrar según el tipo de vehículo y mantiene un historial de las estadías.
+Sistema de software desarrollado en Python, con menú de consola e interfaz web, para administrar un parqueadero: registra el ingreso y la salida de vehículos en espacios numerados, controla la disponibilidad, calcula el valor a cobrar según el tipo de vehículo y el plan de tarifa, valida las placas colombianas y genera reportes por fecha.
 
 ## 2. Objetivo
 
@@ -14,7 +14,7 @@ En algunos parqueaderos, el control de los vehículos y de la disponibilidad se 
 
 ## 4. Alcance
 
-**Incluye:** registro de entradas y salidas, control de capacidad, validación de datos, cobro automático por tipo de vehículo, consulta de vehículos estacionados e historial con total recaudado.
+**Incluye:** registro de entradas y salidas, control de capacidad, validación de datos, cobro automático por tipo de vehículo, consulta de vehículos estacionados, espacios numerados, planes de tarifa, validación de placas, reportes por fecha, historial con total recaudado e interfaz web.
 
 **No incluye (por ahora):** persistencia en base de datos o archivos (los datos viven en memoria mientras el programa está abierto), manejo de usuarios o turnos.
 
@@ -30,6 +30,11 @@ En algunos parqueaderos, el control de los vehículos y de la disponibilidad se 
 - Creación de vehículos mediante el patrón Factory Method.
 - Notificaciones automáticas de entradas y salidas mediante Observer.
 - Actualización de la disponibilidad después de cada evento.
+- Espacios numerados: asignación automática del primer espacio libre o elección manual desde el plano.
+- Planes de tarifa: normal, nocturna, por convenio y mensualidad.
+- Control de placas según el tipo: carro (ABC123), moto (ABC12D) y código de serial para bicicletas.
+- Reporte por fecha: salidas y recaudo del día por tipo de vehículo y por plan, con descarga en CSV.
+- Interfaz web con plano del parqueadero, ticket de salida y actividad en vivo.
 
 ## 6. Tecnologías utilizadas
 
@@ -83,11 +88,15 @@ src/
 - **Razón de uso:** permite agregar tipos de vehículo o esquemas de cobro creando una clase nueva, sin tocar el servicio principal.
 - **Dónde está:** `src/servicios/tarifas.py` y `src/servicios/parqueadero.py`. Documentación completa en [`documentacion/patrones/patron_strategy.md`](documentacion/patrones/patron_strategy.md) y diagramas en [`documentacion/diagramas/diagrama_strategy.md`](documentacion/diagramas/diagrama_strategy.md).
 
-| Tipo | Estrategia | Valor de ejemplo |
+| Estrategia | Descripción | Valor de ejemplo |
 |---|---|---|
-| carro | `TarifaPorHora` | $3.000 por hora o fracción |
-| moto | `TarifaPorHora` | $1.500 por hora o fracción |
-| bicicleta | `TarifaPlana` | $1.000 |
+| `TarifaPorHora` | Por hora o fracción | Carro $3.000, moto $1.500 |
+| `TarifaPlana` | Valor fijo | Bicicleta $1.000 |
+| `TarifaNocturna` | Valor fijo si ingresa entre 7:00 p. m. y 6:00 a. m. | Carro $8.000, moto $5.000, bicicleta $2.000 |
+| `TarifaConvenio` | Descuento sobre la tarifa base | 30 % de descuento |
+| `TarifaMensualidad` | Mes pagado, cada salida cuesta $0 | Carro $180.000, moto $90.000, bicicleta $30.000 al mes |
+
+`TarifaNocturna` y `TarifaConvenio` envuelven otra estrategia (la tarifa base), por lo que se combinan sin repetir código. El plan se elige al registrar la entrada y `Parqueadero` solo delega el cálculo en la estrategia correspondiente.
 
 ### Patrón Factory Method
 
@@ -109,6 +118,20 @@ src/
   agregar nuevos observadores.
 - Ubicación: src/observadores/observador_parqueadero.py.
 
+### Placas válidas
+### Control de placas (Colombia)
+
+| Tipo | Formato | Ejemplo |
+|---|---|---|
+| Carro | 3 letras + 3 números | ABC123 |
+| Moto | 3 letras + 2 números + 1 letra | ABC12D |
+| Bicicleta | Sin placa oficial: código o serial del marco (5 a 7 letras o números) | BIC001 |
+
+### Espacios y reportes
+### Espacios numerados y reportes
+
+- El parqueadero tiene espacios numerados del 1 a N. Al registrar una entrada se asigna el primer espacio libre o el que elija el operador; un espacio ocupado o inexistente se rechaza con un mensaje claro.
+- `Parqueadero.reporte_por_fecha(fecha)` devuelve las salidas del día, el total recaudado y el desglose por tipo de vehículo y por plan. En la interfaz se consulta desde "Reporte por fecha" (endpoint `GET /api/reporte?fecha=AAAA-MM-DD`).
 
 ### Otras decisiones
 
@@ -116,6 +139,7 @@ src/
 - **Inyección de dependencias:** `Parqueadero` recibe las tarifas y el reloj por constructor, lo que permite probar cobros con fechas controladas.
 - **Manejo de errores:** todas las excepciones heredan de `ParqueaderoError`, y el menú las captura para mostrar el mensaje sin romper el programa.
 - **Datos validados desde el origen:** `Vehiculo` normaliza (mayúsculas, espacios) y valida al crearse.
+
 
 ## 9. Instrucciones de ejecución
 
@@ -154,13 +178,11 @@ El proyecto incluye validaciones, manejo de errores y pruebas automatizadas.
 ## 12. Próximos avances
 
 - Persistir los registros (archivo JSON o base de datos) para no perder la información al cerrar el programa.
-- Agregar nuevas estrategias de tarifa (nocturna, por convenio, mensualidad).
-- Asignar espacios numerados y reportes por fecha.
-- Pruebas unitarias con patrones aplicados y pruebas automáticas con valores para su correcto funcionamiento.
+- Manejo de usuarios o turnos.
 
 ## Versión final
 
-**PRUEBAS UNITARIAS Y AUTOMATICAS:** programa de consola en Python que registra entradas y salidas, controla los espacios, calcula el cobro según el tipo de vehículo y avisa cada evento, con 48 pruebas automáticas aprobadas.
+**PRUEBAS UNITARIAS Y AUTOMATICAS:** programa de consola en Python que registra entradas y salidas, controla los espacios, calcula el cobro según el tipo de vehículo y avisa cada evento, con 104 pruebas automáticas aprobadas.
 
 ### Patrones aplicados
 | Patrón | Para qué sirve | Dónde se usa |

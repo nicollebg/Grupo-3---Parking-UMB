@@ -4,11 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Parking UMB</title>
-  <meta name="theme-color" content="#B3001B">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23d90429'/%3E%3Cpath d='M11 24V8h6.5a5 5 0 0 1 0 10H14' fill='none' stroke='white' stroke-width='3.4' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <meta name="theme-color" content="#e8112d">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23e8112d'/%3E%3Cpath d='M11 24V8h6.5a5 5 0 0 1 0 10H14' fill='none' stroke='white' stroke-width='3.4' stroke-linejoin='round'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="estilos.css">
 </head>
 <body>
@@ -29,58 +29,141 @@
   <main class="contenedor">
     <!-- Indicadores -->
     <section class="indicadores" aria-label="Resumen">
-      <article class="tarjeta indicador">
-        <span class="etiqueta">Espacios libres</span>
-        <strong class="cifra"><span id="kpi-libres">0</span><small>/ <span id="kpi-capacidad">0</span></small></strong>
-        <div class="barra-ocupacion" role="img" aria-label="Ocupación"><div id="barra-ocupacion"></div></div>
+      <article class="kpi verde">
+        <span class="kpi-icono" aria-hidden="true">🅿️</span>
+        <div>
+          <span class="etiqueta">Espacios libres</span>
+          <strong class="cifra"><span id="kpi-libres">0</span><small>/ <span id="kpi-capacidad">0</span></small></strong>
+          <div class="barra-ocupacion" role="img" aria-label="Ocupación"><div id="barra-ocupacion"></div></div>
+        </div>
       </article>
-      <article class="tarjeta indicador">
-        <span class="etiqueta">Vehículos dentro</span>
-        <strong class="cifra"><span id="kpi-ocupados">0</span></strong>
-        <span class="nota" id="kpi-nota">Parqueadero vacío</span>
+      <article class="kpi azul">
+        <span class="kpi-icono" aria-hidden="true">🚗</span>
+        <div>
+          <span class="etiqueta">Vehículos dentro</span>
+          <strong class="cifra" id="kpi-ocupados">0</strong>
+          <span class="nota" id="kpi-nota">Parqueadero vacío</span>
+        </div>
       </article>
-      <article class="tarjeta indicador destacado">
-        <span class="etiqueta">Total recaudado</span>
-        <strong class="cifra" id="kpi-recaudado">$0</strong>
-        <span class="nota" id="kpi-salidas">0 salidas registradas</span>
+      <article class="kpi amarillo">
+        <span class="kpi-icono" aria-hidden="true">🧾</span>
+        <div>
+          <span class="etiqueta">Salidas registradas</span>
+          <strong class="cifra" id="kpi-salidas">0</strong>
+          <span class="nota">en todo el historial</span>
+        </div>
+      </article>
+      <article class="kpi rojo">
+        <span class="kpi-icono" aria-hidden="true">💰</span>
+        <div>
+          <span class="etiqueta">Total recaudado</span>
+          <strong class="cifra" id="kpi-recaudado">$0</strong>
+          <span class="nota">suma de todas las salidas</span>
+        </div>
       </article>
     </section>
 
-    <div class="rejilla">
-      <!-- Plano -->
-      <section class="tarjeta plano" aria-labelledby="t-plano">
-        <div class="cabecera">
-          <h2 id="t-plano">Plano del parqueadero</h2>
-          <span class="leyenda"><i class="pt libre"></i>Libre <i class="pt ocupado"></i>Ocupado</span>
-        </div>
-        <div class="bahias" id="bahias" aria-live="polite"></div>
-        <div class="via" aria-hidden="true"><span>ENTRADA / SALIDA</span></div>
-      </section>
+    <div class="columnas">
+      <div class="col-izq">
+        <!-- Plano -->
+        <section class="tarjeta s-plano" aria-labelledby="t-plano">
+          <div class="cabecera">
+            <h2 id="t-plano">Plano del parqueadero</h2>
+            <span class="leyenda"><i class="pt libre"></i>Libre <i class="pt ocupado"></i>Ocupado</span>
+          </div>
+          <p class="ayuda">Toca un espacio libre para elegirlo al registrar la entrada.</p>
+          <div class="lote">
+            <div class="bahias" id="bahias" aria-live="polite"></div>
+            <div class="via" aria-hidden="true"><span>ENTRADA / SALIDA</span></div>
+          </div>
+        </section>
 
-      <!-- Acciones -->
-      <aside class="acciones">
-        <section class="tarjeta" aria-labelledby="t-entrada">
+        <!-- Reporte por fecha -->
+        <section class="tarjeta s-reporte" aria-labelledby="t-rep">
+          <div class="cabecera">
+            <h2 id="t-rep">Reporte por fecha</h2>
+            <label class="fecha">
+              <span class="solo-lector">Fecha del reporte</span>
+              <input type="date" id="fecha-reporte">
+            </label>
+          </div>
+          <div class="mini-kpis">
+            <div><span class="etiqueta">Salidas del día</span><strong id="rep-salidas">0</strong></div>
+            <div class="rojo"><span class="etiqueta">Recaudado del día</span><strong id="rep-total">$0</strong></div>
+          </div>
+          <div class="dos-col">
+            <div class="tabla-caja">
+              <table>
+                <thead><tr><th>Tipo</th><th class="num">Cant.</th><th class="num">Total</th></tr></thead>
+                <tbody id="rep-tipos"></tbody>
+              </table>
+            </div>
+            <div class="tabla-caja">
+              <table>
+                <thead><tr><th>Plan</th><th class="num">Cant.</th><th class="num">Total</th></tr></thead>
+                <tbody id="rep-planes"></tbody>
+              </table>
+            </div>
+          </div>
+          <button class="btn claro" id="btn-csv" type="button">⬇ Descargar CSV del día</button>
+        </section>
+
+        <!-- Historial -->
+        <section class="tarjeta s-historial" aria-labelledby="t-hist">
+          <div class="cabecera"><h2 id="t-hist">Historial de salidas</h2></div>
+          <div class="tabla-caja alta">
+            <table>
+              <thead><tr><th>Placa</th><th>Tipo</th><th>Plan</th><th class="num">Esp.</th><th>Entrada</th><th>Salida</th><th class="num">Min.</th><th class="num">Valor</th></tr></thead>
+              <tbody id="tabla-historial"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Observer -->
+        <section class="tarjeta s-actividad" aria-labelledby="t-act">
+          <div class="cabecera">
+            <h2 id="t-act">Actividad en vivo</h2>
+            <span class="chip">Observer</span>
+          </div>
+          <ul class="eventos" id="eventos"></ul>
+        </section>
+      </div>
+
+      <aside class="col-der">
+        <section class="tarjeta s-entrada" aria-labelledby="t-entrada">
           <div class="cabecera"><h2 id="t-entrada">Registrar entrada</h2></div>
           <form id="form-entrada" autocomplete="off" novalidate>
-            <label class="campo">
-              <span>Placa</span>
-              <input id="placa-entrada" class="placa-input" maxlength="7" placeholder="ABC123" inputmode="text" required>
-            </label>
             <fieldset class="tipos">
               <legend>Tipo de vehículo</legend>
               <label><input type="radio" name="tipo" value="carro" checked><span><svg class="ic"><use href="#i-carro"/></svg>Carro</span></label>
               <label><input type="radio" name="tipo" value="moto"><span><svg class="ic"><use href="#i-moto"/></svg>Moto</span></label>
               <label><input type="radio" name="tipo" value="bicicleta"><span><svg class="ic"><use href="#i-bicicleta"/></svg>Bicicleta</span></label>
             </fieldset>
+            <label class="campo">
+              <span id="etiqueta-placa">Placa del carro</span>
+              <input id="placa-entrada" class="placa-input" maxlength="7" placeholder="ABC123" required>
+              <small class="pista" id="pista-placa">3 letras y 3 números</small>
+            </label>
+            <div class="fila-2">
+              <label class="campo">
+                <span>Plan de tarifa</span>
+                <select id="plan"></select>
+              </label>
+              <label class="campo">
+                <span>Espacio</span>
+                <select id="espacio"><option value="">Automático</option></select>
+              </label>
+            </div>
+            <p class="pista plan-desc" id="plan-desc"></p>
             <button class="btn primario" type="submit">Registrar entrada</button>
           </form>
         </section>
 
-        <section class="tarjeta" aria-labelledby="t-salida">
+        <section class="tarjeta s-salida" aria-labelledby="t-salida">
           <div class="cabecera"><h2 id="t-salida">Registrar salida</h2></div>
           <form id="form-salida" autocomplete="off" novalidate>
             <label class="campo">
-              <span>Placa del vehículo que sale</span>
+              <span>Placa o código del vehículo que sale</span>
               <input id="placa-salida" class="placa-input" maxlength="7" placeholder="ABC123" list="lista-activos" required>
               <datalist id="lista-activos"></datalist>
             </label>
@@ -88,35 +171,17 @@
           </form>
         </section>
 
-        <section class="tarjeta" aria-labelledby="t-tarifas">
+        <section class="tarjeta s-tarifas" aria-labelledby="t-tarifas">
           <div class="cabecera"><h2 id="t-tarifas">Tarifas</h2></div>
           <ul class="tarifas">
             <li><svg class="ic"><use href="#i-carro"/></svg><span>Carro</span><b>$3.000 <small>/ hora o fracción</small></b></li>
             <li><svg class="ic"><use href="#i-moto"/></svg><span>Moto</span><b>$1.500 <small>/ hora o fracción</small></b></li>
             <li><svg class="ic"><use href="#i-bicicleta"/></svg><span>Bicicleta</span><b>$1.000 <small>tarifa plana</small></b></li>
           </ul>
+          <h3 class="subtitulo">Planes especiales</h3>
+          <ul class="planes" id="lista-planes"></ul>
         </section>
       </aside>
-
-      <!-- Historial -->
-      <section class="tarjeta historial" aria-labelledby="t-hist">
-        <div class="cabecera"><h2 id="t-hist">Historial de salidas</h2></div>
-        <div class="tabla-caja">
-          <table>
-            <thead><tr><th>Placa</th><th>Tipo</th><th>Entrada</th><th>Salida</th><th class="num">Min.</th><th class="num">Valor</th></tr></thead>
-            <tbody id="tabla-historial"></tbody>
-          </table>
-        </div>
-      </section>
-
-      <!-- Observer -->
-      <section class="tarjeta actividad" aria-labelledby="t-act">
-        <div class="cabecera">
-          <h2 id="t-act">Actividad en vivo</h2>
-          <span class="chip">Observer</span>
-        </div>
-        <ul class="eventos" id="eventos"></ul>
-      </section>
     </div>
   </main>
 
@@ -132,6 +197,8 @@
       <div class="placa" id="tk-placa"></div>
       <dl>
         <div><dt>Tipo</dt><dd id="tk-tipo"></dd></div>
+        <div><dt>Plan</dt><dd id="tk-plan"></dd></div>
+        <div><dt>Espacio</dt><dd id="tk-espacio"></dd></div>
         <div><dt>Entrada</dt><dd id="tk-entrada"></dd></div>
         <div><dt>Salida</dt><dd id="tk-salida"></dd></div>
         <div><dt>Permanencia</dt><dd id="tk-min"></dd></div>

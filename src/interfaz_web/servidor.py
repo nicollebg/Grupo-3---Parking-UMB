@@ -9,18 +9,47 @@ que usa el menu de consola. La interfaz no contiene reglas de negocio.
 import json
 import mimetypes
 import threading
+from datetime import date
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from urllib.parse import parse_qs, urlsplit
 
 from fabricas.vehiculo_factory import FabricaVehiculos
 from modelos.vehiculo import TIPOS_VALIDOS
 from observadores.observador_parqueadero import ObservadorEventos
+from servicios import tarifas
 from servicios.parqueadero import Parqueadero
-from utilidades.excepciones import ParqueaderoError
+from utilidades.excepciones import DatoInvalidoError, ParqueaderoError
 
 RUTA_ESTATICOS = Path(__file__).resolve().parent / "estaticos"
 FORMATO_FECHA = "%Y-%m-%d %H:%M"
+
+
+def pesos(valor):
+    """Formato de moneda colombiano: 8000 -> $8.000"""
+    return "$" + f"{valor:,}".replace(",", ".")
+
+
+def descripcion_planes():
+    """Texto de cada plan de tarifa, construido con los valores reales."""
+    n = tarifas.VALOR_NOCTURNO
+    m = tarifas.VALOR_MENSUALIDAD
+    return [
+        {"clave": tarifas.PLAN_NORMAL, "nombre": "Normal",
+         "descripcion": "Carro y moto por hora o fracción; bicicleta tarifa plana."},
+        {"clave": tarifas.PLAN_NOCTURNA, "nombre": "Nocturna",
+         "descripcion": (
+             f"Si entra entre las {tarifas.HORA_INICIO_NOCTURNA}:00 y las "
+             f"{tarifas.HORA_FIN_NOCTURNA}:00 paga un valor fijo: carro {pesos(n['carro'])}, "
+             f"moto {pesos(n['moto'])}, bicicleta {pesos(n['bicicleta'])}.")},
+        {"clave": tarifas.PLAN_CONVENIO, "nombre": "Convenio",
+         "descripcion": f"{round(tarifas.DESCUENTO_CONVENIO * 100)}% de descuento sobre la tarifa normal."},
+        {"clave": tarifas.PLAN_MENSUALIDAD, "nombre": "Mensualidad",
+         "descripcion": (
+             f"Mes pagado (carro {pesos(m['carro'])}, moto {pesos(m['moto'])}, "
+             f"bicicleta {pesos(m['bicicleta'])}): cada salida cuesta $0.")},
+    ]
 
 
 class ControladorParqueadero:
@@ -35,16 +64,19 @@ class ControladorParqueadero:
     def estado(self):
         with self._candado:
             p = self._parqueadero
-            activos = [
-                {
-                    "placa": r.vehiculo.placa,
-                    "tipo": r.vehiculo.tipo,
-                    "entrada": r.entrada.strftime(FORMATO_FECHA),
-                    "minutos": round(r.minutos_permanencia(p.ahora())),
-                    "estimado": p.estimar_cobro(r),
-                }
-                for r in p.registros_activos
-            ]
+            ahora = p.ahora()
+            espacios = []
+            activos = []
+            for numero, registro in p.mapa_espacios():
+                if registro is None:
+                    espacios.append({"numero": numero, "registro": None})
+                    continue
+                datos = self._serializar(registro)
+                datos["minutos"] = round(registro.minutos_permanencia(ahora))
+                datos["estimado"] = p.estimar_cobro(registro)
+                espacios.append({"numero": numero, "registro": datos})
+                activos.append(datos)
+
             historial = [self._serializar(r) for r in reversed(p.historial)]
             return {
                 "capacidad": p.capacidad,
@@ -52,6 +84,9 @@ class ControladorParqueadero:
                 "ocupados": p.capacidad - p.espacios_disponibles,
                 "recaudado": p.total_recaudado(),
                 "tipos": list(TIPOS_VALIDOS),
+                "planes": descripcion_planes(),
+                "espacios": espacios,
+                "libres": p.espacios_libres,
                 "activos": activos,
                 "historial": historial,
                 "eventos": self._observador.eventos,
@@ -62,7 +97,11 @@ class ControladorParqueadero:
             vehiculo = self._fabrica.crear(
                 datos.get("placa", ""), datos.get("tipo", "")
             )
-            registro = self._parqueadero.registrar_entrada(vehiculo)
+            registro = self._parqueadero.registrar_entrada(
+                vehiculo,
+                plan=datos.get("plan") or tarifas.PLAN_NORMAL,
+                espacio=self._leer_espacio(datos.get("espacio")),
+            )
             return self._serializar(registro)
 
     def salida(self, datos):
@@ -72,11 +111,43 @@ class ControladorParqueadero:
             )
             return self._serializar(registro)
 
+    def reporte(self, texto_fecha=None):
+        with self._candado:
+            fecha = None
+            if texto_fecha:
+                try:
+                    fecha = date.fromisoformat(texto_fecha)
+                except ValueError:
+                    raise DatoInvalidoError("La fecha debe tener el formato AAAA-MM-DD.")
+
+            r = self._parqueadero.reporte_por_fecha(fecha)
+            return {
+                "fecha": r["fecha"],
+                "salidas": r["salidas"],
+                "total": r["total"],
+                "por_tipo": [{"tipo": k, **v} for k, v in r["por_tipo"].items()],
+                "por_plan": [{"plan": k, **v} for k, v in r["por_plan"].items()],
+                "registros": [self._serializar(x) for x in r["registros"]],
+                "fechas": [f.isoformat() for f in self._parqueadero.fechas_con_movimientos()],
+            }
+
+    @staticmethod
+    def _leer_espacio(valor):
+        """El espacio llega como numero, texto o vacio (= asignar automaticamente)."""
+        if valor in (None, ""):
+            return None
+        try:
+            return int(valor)
+        except (TypeError, ValueError):
+            raise DatoInvalidoError("El espacio debe ser un numero.")
+
     @staticmethod
     def _serializar(registro):
         return {
             "placa": registro.vehiculo.placa,
             "tipo": registro.vehiculo.tipo,
+            "plan": registro.plan,
+            "espacio": registro.espacio,
             "entrada": registro.entrada.strftime(FORMATO_FECHA),
             "salida": (
                 registro.salida.strftime(FORMATO_FECHA)
@@ -100,12 +171,21 @@ def crear_manejador(controlador):
 
         # ---------- GET ----------
         def do_GET(self):
-            ruta = self.path.split("?", 1)[0]
+            url = urlsplit(self.path)
 
-            if ruta == "/api/estado":
+            if url.path == "/api/estado":
                 return self._json(HTTPStatus.OK, controlador.estado())
 
-            self._archivo(ruta)
+            if url.path == "/api/reporte":
+                fecha = parse_qs(url.query).get("fecha", [None])[0]
+                try:
+                    return self._json(HTTPStatus.OK, controlador.reporte(fecha))
+                except ParqueaderoError as error:
+                    return self._json(
+                        HTTPStatus.BAD_REQUEST, {"error": self._legible(error)}
+                    )
+
+            self._archivo(url.path)
 
         # ---------- POST ----------
         def do_POST(self):
@@ -147,6 +227,10 @@ def crear_manejador(controlador):
                 .replace("El vehiculo ", "El vehículo ")
                 .replace("no esta en el parqueadero", "no está en el parqueadero")
                 .replace("ya esta en el parqueadero", "ya está en el parqueadero")
+                .replace("ya esta ocupado", "ya está ocupado")
+                .replace("numero", "número")
+                .replace("valido", "válido")
+                .replace("es valida", "es válida")
             )
 
         def _json(self, estado, cuerpo):
@@ -173,15 +257,16 @@ def crear_manejador(controlador):
             self.send_response(HTTPStatus.OK)
             self.send_header("Content-Type", f"{tipo}; charset=utf-8")
             self.send_header("Content-Length", str(len(contenido)))
+            self.send_header("Cache-Control", "no-cache")
             self.end_headers()
             self.wfile.write(contenido)
 
     return Manejador
 
 
-def crear_servidor(capacidad, host="127.0.0.1", puerto=8000):
+def crear_servidor(capacidad, host="127.0.0.1", puerto=8000, reloj=None):
     """Arma el servicio completo y devuelve (servidor, controlador)."""
-    parqueadero = Parqueadero(capacidad)
+    parqueadero = Parqueadero(capacidad, reloj=reloj) if reloj else Parqueadero(capacidad)
     observador = ObservadorEventos()
     parqueadero.suscribir(observador)
 

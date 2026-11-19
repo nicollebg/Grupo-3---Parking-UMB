@@ -2,7 +2,11 @@
 
 from dataclasses import dataclass
 
-from utilidades.validaciones import normalizar_placa, normalizar_tipo
+from utilidades.validaciones import (
+    normalizar_placa,
+    normalizar_tipo,
+    validar_placa_para_tipo,
+)
 
 TIPOS_VALIDOS = ("carro", "moto", "bicicleta")
 
@@ -14,8 +18,14 @@ class Vehiculo:
 
     def __post_init__(self):
         # Se normaliza y valida al crear el objeto; frozen obliga a usar object.__setattr__
-        object.__setattr__(self, "placa", normalizar_placa(self.placa))
-        object.__setattr__(self, "tipo", normalizar_tipo(self.tipo, TIPOS_VALIDOS))
+        placa = normalizar_placa(self.placa)
+        tipo = normalizar_tipo(self.tipo, TIPOS_VALIDOS)
+
+        # Control de placa segun el tipo (carro, moto o código de bicicleta)
+        validar_placa_para_tipo(placa, tipo)
+
+        object.__setattr__(self, "placa", placa)
+        object.__setattr__(self, "tipo", tipo)
 
     def mostrar_informacion(self):
         return f"Placa: {self.placa} | Tipo: {self.tipo}"

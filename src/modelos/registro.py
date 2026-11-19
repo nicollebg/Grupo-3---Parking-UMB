@@ -13,6 +13,8 @@ class RegistroParqueo:
     entrada: datetime
     salida: Optional[datetime] = None
     valor_cobrado: Optional[int] = None
+    espacio: Optional[int] = None
+    plan: str = "normal"
 
     @property
     def activo(self):
@@ -28,6 +30,8 @@ class RegistroParqueo:
     def mostrar_informacion(self):
         entrada = self.entrada.strftime("%Y-%m-%d %H:%M")
         texto = f"{self.vehiculo.mostrar_informacion()} | Entrada: {entrada}"
+        if self.espacio is not None:
+            texto += f" | Espacio: {self.espacio}"
         if self.salida is not None:
             salida = self.salida.strftime("%Y-%m-%d %H:%M")
             texto += f" | Salida: {salida} | Valor: ${self.valor_cobrado:,}"

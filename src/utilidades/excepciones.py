@@ -17,3 +17,6 @@ class VehiculoDuplicadoError(ParqueaderoError):
 
 class VehiculoNoEncontradoError(ParqueaderoError):
     """El vehículo no se encuentra dentro del parqueadero."""
+    
+class EspacioNoDisponibleError(ParqueaderoError):
+    """El espacio elegido no existe o ya esta ocupado."""

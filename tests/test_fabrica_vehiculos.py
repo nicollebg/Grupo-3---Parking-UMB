@@ -26,11 +26,11 @@ class TestFabricaVehiculos(unittest.TestCase):
         )
 
     def test_crea_moto(self):
-        vehiculo = self.fabrica.crear("def456", "moto")
+        vehiculo = self.fabrica.crear("def45g", "moto")
 
         self.assertEqual(
             vehiculo,
-            Vehiculo("DEF456", "moto")
+            Vehiculo("DEF45G", "moto")
         )
 
     def test_crea_bicicleta(self):

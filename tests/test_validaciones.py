@@ -35,8 +35,8 @@ class TestVehiculo(unittest.TestCase):
 
     def test_mostrar_informacion(self):
         self.assertEqual(
-            Vehiculo("ABC123", "moto").mostrar_informacion(),
-            "Placa: ABC123 | Tipo: moto",
+            Vehiculo("ABC12D", "moto").mostrar_informacion(),
+            "Placa: ABC12D | Tipo: moto",
         )
 
     def test_rechaza_datos_invalidos(self):

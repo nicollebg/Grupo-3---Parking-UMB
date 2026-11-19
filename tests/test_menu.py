@@ -30,7 +30,7 @@ class TestMenuConsola(unittest.TestCase):
 
     def test_parqueadero_lleno(self):
         texto = ejecutar_menu(
-            ["1", "AAA111", "carro", "1", "BBB222", "moto", "1", "CCC333", "carro", "3", "6"],
+            ["1", "AAA111", "carro", "1", "BBB22B", "moto", "1", "CCC333", "carro", "3", "6"],
             capacidad=2,
         )
         self.assertIn("Error: No hay espacios disponibles.", texto)

@@ -45,7 +45,7 @@ class TestParqueadero(unittest.TestCase):
 
     def test_no_supera_la_capacidad(self):
         self.parqueadero.registrar_entrada(Vehiculo("ABC123", "carro"))
-        self.parqueadero.registrar_entrada(Vehiculo("DEF456", "moto"))
+        self.parqueadero.registrar_entrada(	Vehiculo("DEF45G", "moto"))
         with self.assertRaises(ParqueaderoLlenoError):
             self.parqueadero.registrar_entrada(Vehiculo("GHI789", "carro"))
         self.assertEqual(self.parqueadero.espacios_disponibles, 0)
@@ -53,7 +53,7 @@ class TestParqueadero(unittest.TestCase):
     def test_no_permite_placa_duplicada(self):
         self.parqueadero.registrar_entrada(Vehiculo("ABC123", "carro"))
         with self.assertRaises(VehiculoDuplicadoError):
-            self.parqueadero.registrar_entrada(Vehiculo("abc123", "moto"))
+            self.parqueadero.registrar_entrada(	Vehiculo("abc123", "carro"))
 
     def test_salida_calcula_cobro_y_libera_espacio(self):
         self.parqueadero.registrar_entrada(Vehiculo("ABC123", "carro"))
@@ -75,9 +75,9 @@ class TestParqueadero(unittest.TestCase):
             self.parqueadero.registrar_salida("!")
 
     def test_un_vehiculo_puede_volver_a_entrar_despues_de_salir(self):
-        self.parqueadero.registrar_entrada(Vehiculo("ABC123", "moto"))
-        self.parqueadero.registrar_salida("ABC123")
-        self.parqueadero.registrar_entrada(Vehiculo("ABC123", "moto"))
+        self.parqueadero.registrar_entrada(Vehiculo("ABC12D", "moto"))
+        self.parqueadero.registrar_salida("ABC12D")
+        self.parqueadero.registrar_entrada(Vehiculo("ABC12D", "moto"))
         self.assertEqual(self.parqueadero.espacios_disponibles, 1)
 
     def test_cada_tipo_usa_su_estrategia(self):
@@ -100,7 +100,7 @@ class TestParqueadero(unittest.TestCase):
     def test_rechaza_tipo_sin_tarifa_configurada(self):
         parqueadero = Parqueadero(1, tarifas={"carro": TarifaPlana(500)}, reloj=self.reloj)
         with self.assertRaises(DatoInvalidoError):
-            parqueadero.registrar_entrada(Vehiculo("DEF456", "moto"))
+            parqueadero.registrar_entrada(	Vehiculo("DEF45G", "moto"))
 
 
 if __name__ == "__main__":

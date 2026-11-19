@@ -18,5 +18,6 @@ python -m unittest discover -s tests -v
 | `test_parqueadero.py` | Registro de entradas y salidas, capacidad máxima, placas duplicadas, cobro y recaudo, e inyección de otra estrategia. |
 | `test_validaciones.py` | Normalización y validación de placa y tipo, y creación del `Vehiculo`. |
 | `test_menu.py` | Integración del menú de consola con el servicio, incluido el manejo de errores. |
+| `test_interfaz_web.py` | API de la interfaz web (entrada, salida, errores 400, archivos estáticos) y `ObservadorEventos`. |
 
 `contexto.py` solo agrega `src/` al path para que las pruebas puedan importar los paquetes del proyecto.

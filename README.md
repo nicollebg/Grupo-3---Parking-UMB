@@ -2,7 +2,7 @@
 
 ## 1. Descripción del proyecto
 
-Sistema de software de consola, desarrollado en Python, para administrar un parqueadero: registra el ingreso y la salida de vehículos, controla los espacios disponibles, calcula el valor a cobrar según el tipo de vehículo y mantiene un historial de las estadías.
+Sistema de software desarrollado en Python, con menú de consolta e interfaz para administrar un parqueadero: registra el ingreso y la salida de vehículos, controla los espacios disponibles, calcula el valor a cobrar según el tipo de vehículo y mantiene un historial de las estadías.
 
 ## 2. Objetivo
 
@@ -16,7 +16,7 @@ En algunos parqueaderos, el control de los vehículos y de la disponibilidad se 
 
 **Incluye:** registro de entradas y salidas, control de capacidad, validación de datos, cobro automático por tipo de vehículo, consulta de vehículos estacionados e historial con total recaudado.
 
-**No incluye (por ahora):** interfaz gráfica, persistencia en base de datos o archivos (los datos viven en memoria mientras el programa está abierto), manejo de usuarios o turnos.
+**No incluye (por ahora):** persistencia en base de datos o archivos (los datos viven en memoria mientras el programa está abierto), manejo de usuarios o turnos.
 
 ## 5. Funcionalidades implementadas
 
@@ -38,6 +38,7 @@ En algunos parqueaderos, el control de los vehículos y de la disponibilidad se 
 - Editor de código: Visual Studio Code.
 - Control de versiones: Git.
 - Repositorio remoto: GitHub.
+- Interfaz web: HTML, CSS y JavaScript
 
 ## 7. Estructura actual del proyecto
 
@@ -47,6 +48,10 @@ Grupo-3---Parking-UMB/
 ├── .gitignore
 src/
 ├── main.py
+├── main_web.py
+├── interfaz_web/
+│   ├── servidor.py
+│   └── estaticos/ (index.html, estilos.css, app.js)
 ├── componentes/
 │   └── menu.py
 ├── fabricas/
@@ -99,7 +104,7 @@ src/
   sin mezclar las notificaciones con toda la lógica del parqueadero.
 - Aplicación: el parqueadero notifica automáticamente a los observadores
   cuando se registra una entrada o salida.
-- Componentes: Parqueadero, ObservadorParqueadero y ObservadorConsola.
+- Componentes: Parqueadero, ObservadorParqueadero, ObservadorEventos y ObservadorConsola.
 - Beneficios: facilita la comunicación entre componentes y permite
   agregar nuevos observadores.
 - Ubicación: src/observadores/observador_parqueadero.py.
@@ -119,7 +124,9 @@ src/
 3. Ejecutar el programa desde la raíz del repositorio:
 
 ```bash
-python src/main.py
+hon src/main_web.py
+
+Abrir http://127.0.0.1:8000 en el navegador.
 ```
 
 4. Ejecutar las pruebas:
@@ -149,10 +156,9 @@ El proyecto incluye validaciones, manejo de errores y pruebas automatizadas.
 - Persistir los registros (archivo JSON o base de datos) para no perder la información al cerrar el programa.
 - Agregar nuevas estrategias de tarifa (nocturna, por convenio, mensualidad).
 - Asignar espacios numerados y reportes por fecha.
-- Evaluar una interfaz gráfica o web.
 - Pruebas unitarias con patrones aplicados y pruebas automáticas con valores para su correcto funcionamiento.
 
-## Versión final (Guía 6)
+## Versión final
 
 **PRUEBAS UNITARIAS Y AUTOMATICAS:** programa de consola en Python que registra entradas y salidas, controla los espacios, calcula el cobro según el tipo de vehículo y avisa cada evento, con 48 pruebas automáticas aprobadas.
 

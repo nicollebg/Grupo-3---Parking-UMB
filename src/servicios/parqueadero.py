@@ -138,6 +138,19 @@ class Parqueadero:
 
         return registro
 
+    def ahora(self):
+        """Hora actual segun el reloj inyectado."""
+        return self._reloj()
+
+    def estimar_cobro(self, registro, hasta=None):
+        """Valor que se cobraria hoy a un registro activo (Strategy, sin cerrar la estadia)."""
+
+        estrategia = self._tarifas[registro.vehiculo.tipo]
+
+        return estrategia.calcular(
+            registro.minutos_permanencia(hasta or self._reloj())
+        )
+        
     def total_recaudado(self):
 
         return sum(

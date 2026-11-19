@@ -44,3 +44,35 @@ class ObservadorConsola(ObservadorParqueadero):
             return
 
         self._escribir(mensaje)
+        
+class ObservadorEventos(ObservadorParqueadero):
+    """Guarda los ultimos eventos para mostrarlos en la interfaz web."""
+
+    def __init__(self, maximo=30, reloj=None):
+        from collections import deque
+        from datetime import datetime
+
+        self._reloj = reloj or datetime.now
+        self._eventos = deque(maxlen=maximo)
+        self._contador = 0
+
+    def actualizar(self, evento, registro, espacios_disponibles):
+
+        if evento not in ("entrada", "salida"):
+            return
+
+        self._contador += 1
+
+        self._eventos.append({
+            "id": self._contador,
+            "evento": evento,
+            "placa": registro.vehiculo.placa,
+            "tipo": registro.vehiculo.tipo,
+            "hora": self._reloj().strftime("%H:%M:%S"),
+            "disponibles": espacios_disponibles,
+        })
+
+    @property
+    def eventos(self):
+        """Eventos del mas reciente al mas antiguo."""
+        return list(reversed(self._eventos))

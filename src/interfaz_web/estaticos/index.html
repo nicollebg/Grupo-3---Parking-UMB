@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Parking UMB</title>
+  <meta name="theme-color" content="#B3001B">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23d90429'/%3E%3Cpath d='M11 24V8h6.5a5 5 0 0 1 0 10H14' fill='none' stroke='white' stroke-width='3.4' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <header class="barra">
+    <div class="marca">
+      <span class="logo" aria-hidden="true">P</span>
+      <div>
+        <h1>PARKING UMB</h1>
+        <p>Sistema de gestión de parqueadero</p>
+      </div>
+    </div>
+    <div class="barra-der">
+      <span class="estado" id="estado-conexion"><i></i><span>Conectando…</span></span>
+      <time class="reloj" id="reloj" aria-label="Hora actual">--:--:--</time>
+    </div>
+  </header>
+
+  <main class="contenedor">
+    <!-- Indicadores -->
+    <section class="indicadores" aria-label="Resumen">
+      <article class="tarjeta indicador">
+        <span class="etiqueta">Espacios libres</span>
+        <strong class="cifra"><span id="kpi-libres">0</span><small>/ <span id="kpi-capacidad">0</span></small></strong>
+        <div class="barra-ocupacion" role="img" aria-label="Ocupación"><div id="barra-ocupacion"></div></div>
+      </article>
+      <article class="tarjeta indicador">
+        <span class="etiqueta">Vehículos dentro</span>
+        <strong class="cifra"><span id="kpi-ocupados">0</span></strong>
+        <span class="nota" id="kpi-nota">Parqueadero vacío</span>
+      </article>
+      <article class="tarjeta indicador destacado">
+        <span class="etiqueta">Total recaudado</span>
+        <strong class="cifra" id="kpi-recaudado">$0</strong>
+        <span class="nota" id="kpi-salidas">0 salidas registradas</span>
+      </article>
+    </section>
+
+    <div class="rejilla">
+      <!-- Plano -->
+      <section class="tarjeta plano" aria-labelledby="t-plano">
+        <div class="cabecera">
+          <h2 id="t-plano">Plano del parqueadero</h2>
+          <span class="leyenda"><i class="pt libre"></i>Libre <i class="pt ocupado"></i>Ocupado</span>
+        </div>
+        <div class="bahias" id="bahias" aria-live="polite"></div>
+        <div class="via" aria-hidden="true"><span>ENTRADA / SALIDA</span></div>
+      </section>
+
+      <!-- Acciones -->
+      <aside class="acciones">
+        <section class="tarjeta" aria-labelledby="t-entrada">
+          <div class="cabecera"><h2 id="t-entrada">Registrar entrada</h2></div>
+          <form id="form-entrada" autocomplete="off" novalidate>
+            <label class="campo">
+              <span>Placa</span>
+              <input id="placa-entrada" class="placa-input" maxlength="7" placeholder="ABC123" inputmode="text" required>
+            </label>
+            <fieldset class="tipos">
+              <legend>Tipo de vehículo</legend>
+              <label><input type="radio" name="tipo" value="carro" checked><span><svg class="ic"><use href="#i-carro"/></svg>Carro</span></label>
+              <label><input type="radio" name="tipo" value="moto"><span><svg class="ic"><use href="#i-moto"/></svg>Moto</span></label>
+              <label><input type="radio" name="tipo" value="bicicleta"><span><svg class="ic"><use href="#i-bicicleta"/></svg>Bicicleta</span></label>
+            </fieldset>
+            <button class="btn primario" type="submit">Registrar entrada</button>
+          </form>
+        </section>
+
+        <section class="tarjeta" aria-labelledby="t-salida">
+          <div class="cabecera"><h2 id="t-salida">Registrar salida</h2></div>
+          <form id="form-salida" autocomplete="off" novalidate>
+            <label class="campo">
+              <span>Placa del vehículo que sale</span>
+              <input id="placa-salida" class="placa-input" maxlength="7" placeholder="ABC123" list="lista-activos" required>
+              <datalist id="lista-activos"></datalist>
+            </label>
+            <button class="btn oscuro" type="submit">Cobrar y dar salida</button>
+          </form>
+        </section>
+
+        <section class="tarjeta" aria-labelledby="t-tarifas">
+          <div class="cabecera"><h2 id="t-tarifas">Tarifas</h2></div>
+          <ul class="tarifas">
+            <li><svg class="ic"><use href="#i-carro"/></svg><span>Carro</span><b>$3.000 <small>/ hora o fracción</small></b></li>
+            <li><svg class="ic"><use href="#i-moto"/></svg><span>Moto</span><b>$1.500 <small>/ hora o fracción</small></b></li>
+            <li><svg class="ic"><use href="#i-bicicleta"/></svg><span>Bicicleta</span><b>$1.000 <small>tarifa plana</small></b></li>
+          </ul>
+        </section>
+      </aside>
+
+      <!-- Historial -->
+      <section class="tarjeta historial" aria-labelledby="t-hist">
+        <div class="cabecera"><h2 id="t-hist">Historial de salidas</h2></div>
+        <div class="tabla-caja">
+          <table>
+            <thead><tr><th>Placa</th><th>Tipo</th><th>Entrada</th><th>Salida</th><th class="num">Min.</th><th class="num">Valor</th></tr></thead>
+            <tbody id="tabla-historial"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Observer -->
+      <section class="tarjeta actividad" aria-labelledby="t-act">
+        <div class="cabecera">
+          <h2 id="t-act">Actividad en vivo</h2>
+          <span class="chip">Observer</span>
+        </div>
+        <ul class="eventos" id="eventos"></ul>
+      </section>
+    </div>
+  </main>
+
+  <footer class="pie">Grupo 3 · Parking UMB · Patrones: Strategy · Factory Method · Observer</footer>
+
+  <!-- Ticket de salida -->
+  <div class="velo" id="velo" hidden>
+    <div class="ticket" role="dialog" aria-modal="true" aria-labelledby="tk-titulo">
+      <div class="ticket-cab">
+        <span class="logo chico" aria-hidden="true">P</span>
+        <h3 id="tk-titulo">Ticket de salida</h3>
+      </div>
+      <div class="placa" id="tk-placa"></div>
+      <dl>
+        <div><dt>Tipo</dt><dd id="tk-tipo"></dd></div>
+        <div><dt>Entrada</dt><dd id="tk-entrada"></dd></div>
+        <div><dt>Salida</dt><dd id="tk-salida"></dd></div>
+        <div><dt>Permanencia</dt><dd id="tk-min"></dd></div>
+      </dl>
+      <div class="total"><span>Total a pagar</span><strong id="tk-valor"></strong></div>
+      <button class="btn primario" id="tk-cerrar" type="button">Listo</button>
+    </div>
+  </div>
+
+  <div class="avisos" id="avisos" role="status" aria-live="polite"></div>
+
+  <!-- Íconos -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-carro" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 11.5 6.2 7a2 2 0 0 1 1.9-1.3h7.8a2 2 0 0 1 1.9 1.3l1.7 4.5"/><path d="M3 12.5A1.5 1.5 0 0 1 4.5 11h15a1.5 1.5 0 0 1 1.5 1.5V17a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M5 18v1.5M19 18v1.5"/><circle cx="7.2" cy="14.6" r=".6" fill="currentColor"/><circle cx="16.8" cy="14.6" r=".6" fill="currentColor"/></symbol>
+    <symbol id="i-moto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="16.5" r="3"/><circle cx="18.5" cy="16.5" r="3"/><path d="M5.5 16.5 9 10h5l3 6.5"/><path d="M9 10 7.8 7.5H5.5M14 10l1-3.2h2.6M10.5 13.5h5"/></symbol>
+    <symbol id="i-bicicleta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="16" r="3.5"/><circle cx="18.5" cy="16" r="3.5"/><path d="M5.5 16 9.2 8.5h6l3.3 7.5M9.2 8.5 12.5 16l2.7-7.5"/><path d="M7.6 6.5h3M14.2 6l1 2.5"/></symbol>
+    <symbol id="i-salir" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H5v14h4M14 8l4 4-4 4M18 12H9"/></symbol>
+  </svg>
+
+  <script src="app.js"></script>
+</body>
+</html>
